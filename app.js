@@ -1,8 +1,33 @@
 
 window.addEventListener('load', function () {
-    var data = new Vue({
-        el : '#app',
-        data : {
+
+Vue.component('product', {
+    template : `
+    <div class="product">
+    <div class="product-image">
+      <img :src="image">
+    </div>
+    <div class="product-info">
+      <h1> {{products}}</h1> 
+      <p v-if="inStock">In Stock</p>
+      <p v-else :class="{outOfStock : !inStock}">Out of Stock</p>
+      <ul>
+        <li v-for="lists in description">
+          {{lists}}
+        </li>
+      </ul>
+      <div class="color-box"  @mouseover="updateProperty(index)" v-for="(variant,index) in variants" :key="variant.variantId" :style="{backgroundColor:variant.vaiantColor}"> 
+        {{variant.vaiantColor}}
+      </div>
+      <button v-on:click="addCart()" :class="{disabledButton: !inStock}">Add Cart</button>
+      <div class="cart">
+        <p>Cart ({{cart}})</p>
+      </div>
+    </div>
+  </div>
+    `,
+    data(){
+        return {
             products : 'socks',
             brand : 'Indian',
             selectedVariant : 0,
@@ -18,31 +43,39 @@ window.addEventListener('load', function () {
                 vaiantColor : "blue",
                 vaiantImage : './assets/blue-socks.jpg',
                 variantQuantity: 0
-
+    
             }],
             cart : 0,
-                 },
-                 methods:{
-                    addCart() {
-                        this.cart += 1
-                    },
-                    updateProperty(val){
-                        this.selectedVariant = val;
-                        
-                    }
-                 },
-                 computed:{
-                     title(){
-                         return this.brand + ' ' + this.products
-                     },
-                     image(){
-                        return this.variants[this.selectedVariant].vaiantImage
-
-                     },
-                     inStock(){
-                         return this.variants[this.selectedVariant].variantQuantity
-                     }
-                     
                  }
+                 },
+             methods:{
+                addCart() {
+                    this.cart += 1
+                },
+                updateProperty(val){
+                    this.selectedVariant = val;
+                    
+                }
+             },
+             computed:{
+                 title(){
+                     return this.brand + ' ' + this.products
+                 },
+                 image(){
+                    return this.variants[this.selectedVariant].vaiantImage
+
+                 },
+                 inStock(){
+                     return this.variants[this.selectedVariant].variantQuantity
+                 }
+                 
+             }
+    
+})
+
+
+    var data = new Vue({
+        el : '#app',
+      
     })
 })
