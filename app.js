@@ -18,7 +18,7 @@ Vue.component('product',
       <h1> {{products}}</h1> 
       <p v-if="inStock">In Stock</p>
       <p v-else :class="{outOfStock : !inStock}">Out of Stock</p>
-      <p>User is Premium {{premium}}</p>
+      <p>Shipping :  {{shipping}}</p>
       <ul>
         <li v-for="lists in description">
           {{lists}}
@@ -27,10 +27,7 @@ Vue.component('product',
       <div class="color-box"  @mouseover="updateProperty(index)" v-for="(variant,index) in variants" :key="variant.variantId" :style="{backgroundColor:variant.vaiantColor}"> 
         {{variant.vaiantColor}}
       </div>
-      <button v-on:click="addCart()" :class="{disabledButton: !inStock}">Add Cart</button>
-      <div class="cart">
-        <p>Cart ({{cart}})</p>
-      </div>
+      <button v-on:click="addCart('add-to-cart')" :class="{disabledButton: !inStock}">Add Cart</button>
     </div>
   </div>
     `,
@@ -53,12 +50,11 @@ Vue.component('product',
                 variantQuantity: 0
     
             }],
-            cart : 0,
                  }
                  },
              methods:{
                 addCart() {
-                    this.cart += 1
+                    this.$emit("add-to-cart",this.variants[this.selectedVariant].variantId)
                 },
                 updateProperty(val){
                     this.selectedVariant = val;
@@ -75,17 +71,44 @@ Vue.component('product',
                  },
                  inStock(){
                      return this.variants[this.selectedVariant].variantQuantity
+                 },
+                 shipping(){
+                     if(this.premium == true){
+                         return "Free"
+                     }
+                     return "$2.99"
                  }
                  
              }
     
 })
 
+Vue.component('product-details',{
+    props : {
+        product_details : {
+            type : Object,
+            required : true
+        }
+    },
+    template : `
+    <p>Product-Origin : {{product_details.origin}}</p>
+    `
+})
+
 
     var data = new Vue({
         el : '#app',
         data:{
-            premium : true
+            premium : false,
+            cart : [],
+            product_details : {
+                origin : "India"
+            }
+        },
+        methods:{
+            updateCart(id){
+                this.cart.push(id)
+            }
         }
       
     })
