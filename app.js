@@ -1,7 +1,14 @@
 
 window.addEventListener('load', function () {
 
-Vue.component('product', {
+Vue.component('product',
+{
+    props : {
+        premium : {
+            type : Boolean,
+            required : true
+        }
+    },
     template : `
     <div class="product">
     <div class="product-image">
@@ -11,6 +18,7 @@ Vue.component('product', {
       <h1> {{products}}</h1> 
       <p v-if="inStock">In Stock</p>
       <p v-else :class="{outOfStock : !inStock}">Out of Stock</p>
+      <p>User is Premium {{premium}}</p>
       <ul>
         <li v-for="lists in description">
           {{lists}}
@@ -76,6 +84,9 @@ Vue.component('product', {
 
     var data = new Vue({
         el : '#app',
+        data:{
+            premium : true
+        }
       
     })
 })
