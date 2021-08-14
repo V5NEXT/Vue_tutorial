@@ -1,5 +1,6 @@
 
 window.addEventListener('load', function () {
+    var eventBus = new Vue()
 
     Vue.component('product', {
         props: {
@@ -74,9 +75,6 @@ window.addEventListener('load', function () {
             },
             updateProduct(index) {  
                 this.selectedVariant = index
-            },
-            addReview(productReview) {
-              this.reviews.push(productReview)
             }
           },
           computed: {
@@ -95,6 +93,11 @@ window.addEventListener('load', function () {
                 }
                   return 2.99
               }
+          },
+          mounted() {
+            eventBus.$on('review-submitted', productReview => {
+              this.reviews.push(productReview)
+            })
           }
       })
     
@@ -153,7 +156,7 @@ window.addEventListener('load', function () {
                 review: this.review,
                 rating: this.rating
               }
-              this.$emit('review-submitted', productReview)
+              eventBus.$emit('review-submitted', productReview)
               this.name = null
               this.review = null
               this.rating = null
@@ -195,9 +198,7 @@ window.addEventListener('load', function () {
             </ul>
         </div>
         
-        <div v-show="selectedTab === 'Make a Review'"> // displays when "Make a Review" is clicked
-          <product-review @review-submitted="addReview"></product-review>        
-        </div>
+          <product-review v-show="selectedTab === 'Make a Review'"></product-review>        
     
       </div>
         `,
