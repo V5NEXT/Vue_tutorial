@@ -1,202 +1,224 @@
 
 window.addEventListener('load', function () {
 
-Vue.component('product',
-{
-    props : {
-        premium : {
-            type : Boolean,
-            required : true
-        }
-    },
-    template : `
-    <div class="product">
-    <div class="product-image">
-      <img :src="image">
-    </div>
-    <div class="product-info">
-      <h1> {{products}}</h1> 
-      <p v-if="inStock">In Stock</p>
-      <p v-else :class="{outOfStock : !inStock}">Out of Stock</p>
-      <p>Shipping :  {{shipping}}</p>
-      <ul>
-        <li v-for="lists in description">
-          {{lists}}
-        </li>
-      </ul>
-      <div class="color-box"  @mouseover="updateProperty(index)" v-for="(variant,index) in variants" :key="variant.variantId" :style="{backgroundColor:variant.vaiantColor}"> 
-        {{variant.vaiantColor}}
-      </div>
-      <button v-on:click="addCart('add-to-cart')" :class="{disabledButton: !inStock}">Add Cart</button>
-      <div>
-      <h2>Reviews</h2>
-      <p v-if="!review.length">No Reviews Yet!</p>
-      <ul>
-      <li v-for="reviews in review">
-      <p>{{reviews.name}}</p>
-      <p>{{reviews.review}}</p>
-      <p>{{reviews.rating}}</p>
-      </li>
-      </ul>
-      </div>
-    </div>
-
-    <product-review @product-review="productReview"></product-review>
-
-  </div>
-    `,
-    data(){
-        return {
-            products : 'socks',
-            brand : 'Indian',
-            selectedVariant : 0,
-            inventory: 11,
-            review:[],
-            description: ['80% cotton','20% polyster','gender-neutral'],
-            variants: [{
-                variantId : 2234,
-                vaiantColor : "green",
-                vaiantImage : './assets/green-socks.jpg',
-                variantQuantity: 10
-            },{
-                variantId : 2235,
-                vaiantColor : "blue",
-                vaiantImage : './assets/blue-socks.jpg',
-                variantQuantity: 0
-    
-            }],
-                 }
-                 },
-             methods:{
-                addCart() {
-                    this.$emit("add-to-cart",this.variants[this.selectedVariant].variantId)
+    Vue.component('product', {
+        props: {
+          premium: {
+            type: Boolean,
+            required: true
+          }
+        },
+        template: `
+         <div class="product">
+              
+            <div class="product-image">
+              <img :src="image">
+            </div>
+      
+            <div class="product-info">
+                <h1>{{ product }}</h1>
+                <p v-if="inStock">In Stock</p>
+                <p v-else>Out of Stock</p>
+                <p>Shipping: {{ shipping }}</p>
+      
+                <ul>
+                  <li v-for="(detail, index) in details" :key="index">{{ detail }}</li>
+                </ul>
+      
+                <div class="color-box"
+                     v-for="(variant, index) in variants" 
+                     :key="variant.variantId"
+                     :style="{ backgroundColor: variant.variantColor }"
+                     @mouseover="updateProduct(index)"
+                     >
+                </div> 
+      
+                <button @click="addToCart" 
+                  :disabled="!inStock"
+                  :class="{ disabledButton: !inStock }"
+                  >
+                Add to cart
+                </button>
+      
+             </div> 
+             <product-tabs :reviews="reviews"></product-tabs>
+          
+          </div>
+         `,
+        data() {
+          return {
+              product: 'Socks',
+              brand: 'Vue Mastery',
+              selectedVariant: 0,
+              details: ['80% cotton', '20% polyester', 'Gender-neutral'],
+              variants: [
+                {
+                  variantId: 2234,
+                  variantColor: 'green',
+                  variantImage: './assets/green-socks.jpg',
+                  variantQuantity: 10     
                 },
-                updateProperty(val){
-                    this.selectedVariant = val;
-                    
-                },
-                productReview(productReview){
-                    this.review.push(productReview)
+                {
+                  variantId: 2235,
+                  variantColor: 'blue',
+                  variantImage: './assets/blue-socks.jpg',
+                  variantQuantity: 0     
                 }
-             },
-             computed:{
-                 title(){
-                     return this.brand + ' ' + this.products
-                 },
-                 image(){
-                    return this.variants[this.selectedVariant].vaiantImage
-
-                 },
-                 inStock(){
-                     return this.variants[this.selectedVariant].variantQuantity
-                 },
-                 shipping(){
-                     if(this.premium == true){
-                         return "Free"
-                     }
-                     return "$2.99"
-                 }
-                 
-             }
+              ],
+              reviews: []
+          }
+        },
+          methods: {
+            addToCart() {
+                this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId)
+            },
+            updateProduct(index) {  
+                this.selectedVariant = index
+            },
+            addReview(productReview) {
+              this.reviews.push(productReview)
+            }
+          },
+          computed: {
+              title() {
+                  return this.brand + ' ' + this.product  
+              },
+              image(){
+                  return this.variants[this.selectedVariant].variantImage
+              },
+              inStock(){
+                  return this.variants[this.selectedVariant].variantQuantity
+              },
+              shipping() {
+                if (this.premium) {
+                  return "Free"
+                }
+                  return 2.99
+              }
+          }
+      })
     
-})
-
-Vue.component('product-details',{
-    props : {
-        product_details : {
-            type : Object,
-            required : true
-        }
-    },
-    template : `
-    <p>Product-Origin : {{product_details.origin}}</p>
-    `
-})
-
-Vue.component('product-review',{
-    template : `
-    <form class="review-form" @submit.prevent="onSubmit">
-    <ul v-if="errors.length">
-    <b>Please fix the following error(s):</b>
-
-    <li v-for="error in errors">
-    {{error}}
-    </li>
-    </ul>
-    <p>
-      <label for="name">Name:</label>
-      <input id="name" v-model="name" placeholder="name">
-    </p>
     
-    <p>
-      <label for="review">Review:</label>      
-      <textarea id="review" v-model="review"></textarea>
-    </p>
+      Vue.component('product-review', {
+        template: `
+          <form class="review-form" @submit.prevent="onSubmit">
+          
+            <p class="error" v-if="errors.length">
+              <b>Please correct the following error(s):</b>
+              <ul>
+                <li v-for="error in errors">{{ error }}</li>
+              </ul>
+            </p>
     
-    <p>
-      <label for="rating">Rating:</label>
-      <select id="rating" v-model.number="rating">
-        <option>5</option>
-        <option>4</option>
-        <option>3</option>
-        <option>2</option>
-        <option>1</option>
-      </select>
-    </p>
-        
-    <p>
-      <input type="submit" value="Submit">  
-    </p>    
-  
-  </form>
-    `,
-    data(){
-        return{
+            <p>
+              <label for="name">Name:</label>
+              <input class="name" v-model="name">
+            </p>
+            
+            <p>
+              <label for="review">Review:</label>      
+              <textarea id="review" v-model="review"></textarea>
+            </p>
+            
+            <p>
+              <label for="rating">Rating:</label>
+              <select id="rating" v-model.number="rating">
+                <option>5</option>
+                <option>4</option>
+                <option>3</option>
+                <option>2</option>
+                <option>1</option>
+              </select>
+            </p>
+                
+            <p>
+              <input type="submit" value="Submit">  
+            </p>    
+          
+        </form>
+        `,
+        data() {
+          return {
             name: null,
             review: null,
             rating: null,
-            errors : []
-        }
-    },
-    methods:{
-        onSubmit(){
-            if(this.name && this.review && this.rating){
-           let productReview = {
-            name: this.name,
-            review: this.review,
-            rating: this.rating
-            }
-            this.$emit('product-review',productReview)
-
-            this.name = null
-            this.rating = null
-            this.review = null
-        }
-        else{
-         if(!this.name) this.errors.push("Name is Required")
-         if(!this.rating) this.errors.push("Ratings is Required")
-         if(!this.review) this.errors.push("Review is Required")
-        }
-    }
-   
-    }
-})
-
-
-    var data = new Vue({
-        el : '#app',
-        data:{
-            premium : false,
-            cart : [],
-            product_details : {
-                origin : "India"
-            }
+            errors: []
+          }
         },
-        methods:{
-            updateCart(id){
-                this.cart.push(id)
+        methods: {
+          onSubmit() {
+            if (this.name && this.review && this.rating) {
+              let productReview = {
+                name: this.name,
+                review: this.review,
+                rating: this.rating
+              }
+              this.$emit('review-submitted', productReview)
+              this.name = null
+              this.review = null
+              this.rating = null
+            } else {
+              if (!this.name) this.errors.push("Name required.")
+              if (!this.review) this.errors.push("Review required.")
+              if (!this.rating) this.errors.push("Rating required.")
             }
+          }
         }
+      })
+
+      Vue.component('product-tabs', {
+        props: {
+            reviews: {
+              type: Array,
+              required: false
+            }
+          },
+        template: `
+        <div>
+          
+        <div>
+          <span class="tab" 
+          :class="{activeTab: selectedTab == tab}"
+                v-for="(tab, index) in tabs"
+                @click="selectedTab = tab"
+          >{{ tab }}</span>
+        </div>
+        
+        <div v-show="selectedTab === 'Reviews'"> 
+            <p v-if="!reviews.length">There are no reviews yet.</p>
+            <ul>
+                <li v-for="review in reviews">
+                  <p>{{ review.name }}</p>
+                  <p>Rating:{{ review.rating }}</p>
+                  <p>{{ review.review }}</p>
+                </li>
+            </ul>
+        </div>
+        
+        <div v-show="selectedTab === 'Make a Review'"> // displays when "Make a Review" is clicked
+          <product-review @review-submitted="addReview"></product-review>        
+        </div>
+    
+      </div>
+        `,
+        data() {
+          return {
+            tabs: ['Reviews', 'Make a Review'],
+            selectedTab: 'Reviews'      
+          }
+        }
+      })
       
-    })
+      var app = new Vue({
+          el: '#app',
+          data: {
+            premium: true,
+            cart: []
+          },
+          methods: {
+            updateCart(id) {
+              this.cart.push(id)
+            }
+          }
+      })
 })
