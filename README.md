@@ -2,7 +2,7 @@
 Sample Vue Application from VUEJS
 
 Beginners application implementing shopping cart Application with Vue Js.
-
+(Note : This application uses vue 2.x and the application is build without CLI)
 Items Implemented :
 
 1: Attribute Binding
